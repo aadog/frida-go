@@ -3,13 +3,11 @@ package cfrida
 
 func Frida_device_get_id(obj uintptr) string {
 	r, _, _ := frida_device_get_id.Call(obj)
-	defer G_free(r)
 	return CStrToStr(r)
 }
 
 func Frida_device_get_name(obj uintptr) string {
 	r, _, _ := frida_device_get_name.Call(obj)
-	defer G_free(r)
 	return CStrToStr(r)
 }
 
@@ -89,6 +87,10 @@ func Frida_process_query_options_new() uintptr {
 	r, _, _ := frida_process_query_options_new.Call()
 	return r
 }
+func Frida_process_match_options_new() uintptr {
+	r, _, _ := frida_process_match_options_new.Call()
+	return r
+}
 func Frida_session_options_new() uintptr {
 	r, _, _ := frida_session_options_new.Call()
 	return r
@@ -134,11 +136,11 @@ func Frida_device_open_channel_sync(obj uintptr,address string,cancellable uintp
 }
 
 func Frida_device_inject_library_file_sync(obj uintptr,pid int,path string,entrypoint string,data []byte,cancellable uintptr,error uintptr)int{
-	r,_,_:=frida_device_inject_library_file_sync.Call(obj, uintptr(pid),GoStrToCStr(path),GoStrToCStr(entrypoint),GetBuffPtr(data),cancellable,error)
+	r,_,_:=frida_device_inject_library_file_sync.Call(obj, uintptr(pid),GoStrToCStr(path),GoStrToCStr(entrypoint),GoByteToCPtr(data),cancellable,error)
 	return int(r)
 }
 func Frida_device_inject_library_blob(obj uintptr,pid int,blbo uintptr,entrypoint string,data []byte,cancellable uintptr,error uintptr)int{
-	r,_,_:=frida_device_inject_library_blob_sync.Call(obj, uintptr(pid),blbo,GoStrToCStr(entrypoint),GetBuffPtr(data),cancellable,error)
+	r,_,_:=frida_device_inject_library_blob_sync.Call(obj, uintptr(pid),blbo,GoStrToCStr(entrypoint),GoByteToCPtr(data),cancellable,error)
 	return int(r)
 }
 
@@ -172,4 +174,28 @@ func Frida_spawn_options_set_cwd(obj uintptr,cwd string)  {
 }
 func Frida_spawn_options_set_stdio(obj uintptr,value int32)  {
 	frida_spawn_options_set_stdio.Call(obj, uintptr(value))
+}
+
+func Frida_device_get_process_by_pid_sync(obj uintptr,pid int,ops uintptr,cancellable uintptr,error uintptr)uintptr{
+	r,_,_:=frida_device_get_process_by_pid_sync.Call(obj, uintptr(pid),ops,cancellable,error)
+	return r
+}
+func Frida_device_get_process_by_name_sync(obj uintptr,name string,ops uintptr,cancellable uintptr,error uintptr)uintptr{
+	r,_,_:=frida_device_get_process_by_name_sync.Call(obj, GoStrToCStr(name),ops,cancellable,error)
+	return r
+}
+
+func Frida_device_find_process_by_pid_sync(obj uintptr,pid int,ops uintptr,cancellable uintptr,error uintptr)uintptr{
+	r,_,_:=frida_device_find_process_by_pid_sync.Call(obj, uintptr(pid),ops,cancellable,error)
+	return r
+}
+func Frida_device_find_process_by_name_sync(obj uintptr,name string,ops uintptr,cancellable uintptr,error uintptr)uintptr{
+	r,_,_:=frida_device_find_process_by_name_sync.Call(obj, GoStrToCStr(name),ops,cancellable,error)
+	return r
+}
+func Frida_process_match_options_set_timeout(obj uintptr,val int)  {
+	frida_process_match_options_set_timeout.Call(obj, uintptr(val))
+}
+func Frida_process_match_options_set_scope(obj uintptr,val int)  {
+	frida_process_match_options_set_scope.Call(obj, uintptr(val))
 }

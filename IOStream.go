@@ -18,6 +18,14 @@ func (i *IOStream) IsClosed() bool {
 
 func (i *IOStream) Close() (bool,error) {
 	var err GError
+	cfrida.G_input_stream_close(i.Input,0,err.ErrInput())
+	if err.IsError(){
+		return false,err.ToError()
+	}
+	cfrida.G_output_stream_close(i.OutPut,0,err.ErrInput())
+	if err.IsError(){
+		return false,err.ToError()
+	}
 	b:=cfrida.G_io_stream_close(i.instance,0,err.ErrInput())
 	if err.IsError(){
 		return false,err.ToError()
@@ -26,31 +34,26 @@ func (i *IOStream) Close() (bool,error) {
 }
 func (i *IOStream) Read(count int) ([]byte,error) {
 	var err GError
-	rawdata:=cfrida.G_input_stream_read_bytes(i.instance,count,0,err.ErrInput())
+	bt:=cfrida.G_input_stream_read_bytes(i.instance,count,0,err.ErrInput())
 	if err.IsError(){
 		return nil,err.ToError()
 	}
-	defer cfrida.G_bytes_unref(rawdata)
-	return DataFromBytes(rawdata),nil
+	return bt,nil
 }
-func (i *IOStream) readAll(count int) ([]byte,error) {
+func (i *IOStream) ReadAll(count int) ([]byte,int,error) {
 	buf:=make([]byte,count)
-	bufptr:=cfrida.GetBuffPtr(buf)
 	bytes_read:=0
 	var err GError
-	cfrida.G_input_stream_read_all(i.instance,bufptr,count,&bytes_read,0,err.ErrInput())
+	cfrida.G_input_stream_read_all(i.instance,buf,count,&bytes_read,0,err.ErrInput())
 	if err.IsError(){
-		return nil,err.ToError()
+		return nil,0,err.ToError()
 	}
-
-	return buf[:bytes_read],nil
+	return buf,bytes_read,nil
 }
 
 func (i *IOStream) Write(data []byte) (int,error) {
-	bt:=cfrida.G_bytes_new(data)
-	defer cfrida.G_bytes_unref(bt)
 	var err GError
-	n:=cfrida.G_output_stream_write_bytes(i.instance,bt,0,err.ErrInput())
+	n:=cfrida.G_output_stream_write_bytes(i.OutPut,data,0,err.ErrInput())
 	if err.IsError(){
 		return 0,err.ToError()
 	}
@@ -59,7 +62,7 @@ func (i *IOStream) Write(data []byte) (int,error) {
 func (i *IOStream) WriteAll(data []byte) (int,error) {
 	outsize:=0
 	var err GError
-	cfrida.G_output_stream_write_all(i.instance,data,&outsize,0,err.ErrInput())
+	cfrida.G_output_stream_write_all(i.OutPut,data,&outsize,0,err.ErrInput())
 	if err.IsError(){
 		return 0,err.ToError()
 	}
@@ -87,7 +90,7 @@ func IOStreamFromInst(inst uintptr) *IOStream {
 	dl.instance=inst
 	dl.ptr= unsafe.Pointer(inst)
 	dl.Input=cfrida.G_io_stream_get_input_stream(dl.instance)
-	dl.OutPut=cfrida.G_io_stream_get_output_stream(dl.OutPut)
+	dl.OutPut=cfrida.G_io_stream_get_output_stream(dl.instance)
 	setFinalizer(dl, (*IOStream).Free)
 	return dl
 }

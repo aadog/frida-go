@@ -22,13 +22,15 @@ func Frida_session_create_script_sync(obj uintptr,source string,ops uintptr,canc
 	r,_,_:=frida_session_create_script_sync.Call(obj,GoStrToCStr(source),ops,cancellable,error)
 	return r
 }
-func Frida_session_create_script_from_bytes_sync(obj uintptr,source string,ops uintptr,cancellable uintptr,error uintptr)uintptr{
-	r,_,_:=frida_session_create_script_from_bytes_sync.Call(obj,GoStrToCStr(source),ops,cancellable,error)
+func Frida_session_create_script_from_bytes_sync(obj uintptr,source []byte,ops uintptr,cancellable uintptr,error uintptr)uintptr{
+	bt:=G_bytes_new(source)
+	defer G_bytes_unref(bt)
+	r,_,_:=frida_session_create_script_from_bytes_sync.Call(obj,bt,ops,cancellable,error)
 	return r
 }
-func Frida_session_compile_script_sync(obj uintptr,source string,ops uintptr,cancellable uintptr,error uintptr)uintptr{
+func Frida_session_compile_script_sync(obj uintptr,source string,ops uintptr,cancellable uintptr,error uintptr)[]byte{
 	r,_,_:=frida_session_compile_script_sync.Call(obj,GoStrToCStr(source),ops,cancellable,error)
-	return r
+	return G_bytes_to_bytes_and_unref(r)
 }
 
 func Frida_session_enable_debugger_sync(obj uintptr,port int,cancellable uintptr,error uintptr){

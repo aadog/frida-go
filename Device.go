@@ -142,61 +142,122 @@ func (d *Device) Spawn(program string, ops *SpawnOptions)(int,error){
 	}
 	return pid,nil
 }
-func (p *Device) Resume(pid int) error {
+func (d *Device) Resume(pid int) error {
 	var err GError
-	cfrida.Frida_device_resume_sync(p.instance,pid,0,err.ErrInput())
+	cfrida.Frida_device_resume_sync(d.instance,pid,0,err.ErrInput())
 	if err.IsError(){
 		return err.ToError()
 	}
 	return nil
 }
 
-func (p *Device) Kill(pid int) error {
+func (d *Device) Kill(pid int) error {
 	var err GError
-	cfrida.Frida_device_kill_sync(p.instance,pid,0,err.ErrInput())
+	cfrida.Frida_device_kill_sync(d.instance,pid,0,err.ErrInput())
 	if err.IsError(){
 		return err.ToError()
 	}
 	return nil
 }
 
-func (p *Device) GetHostSession()(*Session,error){
+func (d *Device) GetHostSession()(*Session,error){
 	var err GError
-	r:=cfrida.Frida_device_get_host_session_sync(p.instance,0,err.ErrInput())
+	r:=cfrida.Frida_device_get_host_session_sync(d.instance,0,err.ErrInput())
 	if err.IsError(){
 		return nil,err.ToError()
 	}
 	return SessionFromInst(r),nil
 }
-func (p *Device) OpenChannel(address string)(*IOStream,error){
+func (d *Device) OpenChannel(address string)(*IOStream,error){
 	var err GError
-	r:=cfrida.Frida_device_open_channel_sync(p.instance,address,0,err.ErrInput())
+	r:=cfrida.Frida_device_open_channel_sync(d.instance,address,0,err.ErrInput())
 	if err.IsError(){
 		return nil,err.ToError()
 	}
 	return IOStreamFromInst(r),nil
 }
 
-func (p *Device) InjectLibraryFileFile(pid int,path string,entrypoint string,data []byte)(int,error){
+func (d *Device) InjectLibraryFileFile(pid int,path string,entrypoint string,data []byte)(int,error){
 	var err GError
-	r:=cfrida.Frida_device_inject_library_file_sync(p.instance,pid,path,entrypoint,data,0,err.ErrInput())
+	r:=cfrida.Frida_device_inject_library_file_sync(d.instance,pid,path,entrypoint,data,0,err.ErrInput())
 	if err.IsError(){
 		return 0,err.ToError()
 	}
 	return r,nil
 }
-func (p *Device) InjectLibraryBlobBlob(pid int,blob []byte,entrypoint string,data []byte)(int,error){
+func (d *Device) InjectLibraryBlobBlob(pid int,blob []byte,entrypoint string,data []byte)(int,error){
 	blobptr:=cfrida.G_bytes_new(blob)
 	defer cfrida.G_bytes_unref(blobptr)
 	var err GError
-	r:=cfrida.Frida_device_inject_library_blob(p.instance,pid,blobptr,entrypoint,data,0,err.ErrInput())
+	r:=cfrida.Frida_device_inject_library_blob(d.instance,pid,blobptr,entrypoint,data,0,err.ErrInput())
 	if err.IsError(){
 		return 0,err.ToError()
 	}
 	return r,nil
 }
 
+func (d *Device) GetProcessById(pid int,ops *ProcessMatchOptions)(*Process,error){
+	if ops!=nil{
+		if ops.Timeout!=0{
+			cfrida.Frida_process_match_options_set_timeout(ops.instance,ops.Timeout)
+		}
+		cfrida.Frida_process_match_options_set_scope(ops.instance, int(ops.Scope))
+	}
+	var err GError
+	r:=cfrida.Frida_device_get_process_by_pid_sync(d.instance,pid,ops.instance,0,err.ErrInput())
+	if err.IsError(){
+		return nil,err.ToError()
+	}
+	return ProcessFromInst(r),nil
+}
+func (d *Device) GetProcessByName(name string,ops *ProcessMatchOptions)(*Process,error){
+	if ops!=nil{
+		if ops.Timeout!=0{
+			cfrida.Frida_process_match_options_set_timeout(ops.instance,ops.Timeout)
+		}
+		cfrida.Frida_process_match_options_set_scope(ops.instance, int(ops.Scope))
+	}
+	var err GError
+	r:=cfrida.Frida_device_get_process_by_name_sync(d.instance,name,ops.instance,0,err.ErrInput())
+	if err.IsError(){
+		return nil,err.ToError()
+	}
+	return ProcessFromInst(r),nil
+}
+
+func (d *Device) FindProcessById(pid int,ops *ProcessMatchOptions)(*Process,error){
+	if ops!=nil{
+		if ops.Timeout!=0{
+			cfrida.Frida_process_match_options_set_timeout(ops.instance,ops.Timeout)
+		}
+		cfrida.Frida_process_match_options_set_scope(ops.instance, int(ops.Scope))
+	}
+	var err GError
+	r:=cfrida.Frida_device_find_process_by_pid_sync(d.instance,pid,ops.instance,0,err.ErrInput())
+	if err.IsError(){
+		return nil,err.ToError()
+	}
+	return ProcessFromInst(r),nil
+}
+func (d *Device) FindProcessByName(name string,ops *ProcessMatchOptions)(*Process,error){
+	if ops!=nil{
+		if ops.Timeout!=0{
+			cfrida.Frida_process_match_options_set_timeout(ops.instance,ops.Timeout)
+		}
+		cfrida.Frida_process_match_options_set_scope(ops.instance, int(ops.Scope))
+	}
+	var err GError
+	r:=cfrida.Frida_device_find_process_by_name_sync(d.instance,name,ops.instance,0,err.ErrInput())
+	if err.IsError(){
+		return nil,err.ToError()
+	}
+	return ProcessFromInst(r),nil
+}
+
+
+
 func (d *Device) Free() {
+	fmt.Println("device 被gc了")
 	cfrida.G_object_unref(d.instance)
 }
 
@@ -208,7 +269,7 @@ func (d *Device) Free() {
 func DeviceFromInst(inst uintptr) *Device {
 	dl:=new(Device)
 	dl.instance=inst
-	dl.ptr= unsafe.Pointer(inst)
+	dl.ptr= unsafe.Pointer(dl.instance)
 	setFinalizer(dl, (*Device).Free)
 	return dl
 }

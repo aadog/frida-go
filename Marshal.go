@@ -4,11 +4,6 @@ import (
 	"frida-go/cfrida"
 	"unsafe"
 )
-func DataFromBytes(bts uintptr)[]byte{
-	size:=0
-	data:=cfrida.G_bytes_get_data(bts,&size)
-	return data
-}
 
 func StrvFromArray(array  []string)(uintptr,int){
 	o:=make([]uintptr,0)
