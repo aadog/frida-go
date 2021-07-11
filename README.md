@@ -1,6 +1,6 @@
 # frida-go 
 
-##frida golang binding
+## frida golang binding
 
 ### no cgo implement
 
