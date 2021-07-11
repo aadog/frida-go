@@ -1,5 +1,6 @@
 package cfrida
 
+import "errors"
 
 func Frida_device_manager_new() uintptr {
 	r, _, _ := frida_device_manager_new.Call()
@@ -40,16 +41,25 @@ func Frida_device_list_get(obj uintptr,index int) uintptr {
 	return r
 }
 func Frida_device_manager_add_remote_device_sync(obj uintptr,address string,ops uintptr,cancellable uintptr) (uintptr,error){
+	if address==""{
+		return 0,errors.New("address is emtry")
+	}
 	gerr:=MakeGError()
 	r,_,_:=frida_device_manager_add_remote_device_sync.Call(obj,GoStrToCStr(address),ops,cancellable,gerr.Input())
 	return r,gerr.ToError()
 }
 func Frida_device_manager_remove_remote_device_sync(obj uintptr,address string,cancellable uintptr) error{
+	if address==""{
+		return errors.New("address is emtry")
+	}
 	gerr:=MakeGError()
 	frida_device_manager_add_remote_device_sync.Call(obj,GoStrToCStr(address),cancellable,gerr.Input())
 	return gerr.ToError()
 }
 func Frida_device_manager_get_device_by_id_sync(obj uintptr,id string,timeout int,cancellable uintptr) (uintptr,error){
+	if id==""{
+		return 0,errors.New("id is emtry")
+	}
 	gerr:=MakeGError()
 	r,_,_:=frida_device_manager_get_device_by_id_sync.Call(obj,GoStrToCStr(id), uintptr(timeout),cancellable,gerr.Input())
 	return r,gerr.ToError()
@@ -61,6 +71,9 @@ func Frida_device_manager_get_device_by_type_sync(obj uintptr,tp int,timeout int
 }
 
 func Frida_device_manager_find_device_by_id_sync(obj uintptr,id string,timeout int,cancellable uintptr) (uintptr,error){
+	if id==""{
+		return 0,errors.New("id is emtry")
+	}
 	gerr:=MakeGError()
 	r,_,_:=frida_device_manager_find_device_by_id_sync.Call(obj,GoStrToCStr(id), uintptr(timeout),cancellable,gerr.Input())
 	return r,gerr.ToError()

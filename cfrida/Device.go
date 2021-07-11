@@ -1,5 +1,7 @@
 package cfrida
 
+import "errors"
+
 func Frida_device_get_id(obj uintptr) string {
 	r, _, _ := frida_device_get_id.Call(obj)
 	return CStrToGoStr(r)
@@ -212,6 +214,9 @@ func Frida_device_get_process_by_pid_sync(obj uintptr,pid uint,ops uintptr,cance
 	return r,gerr.ToError()
 }
 func Frida_device_get_process_by_name_sync(obj uintptr,name string,ops uintptr,cancellable uintptr)(uintptr,error){
+	if name==""{
+		return 0,errors.New("name is emtry")
+	}
 	gerr:=MakeGError()
 	r,_,_:=frida_device_get_process_by_name_sync.Call(obj, GoStrToCStr(name),ops,cancellable,gerr.Input())
 	return r,gerr.ToError()
@@ -223,6 +228,9 @@ func Frida_device_find_process_by_pid_sync(obj uintptr,pid uint,ops uintptr,canc
 	return r,gerr.ToError()
 }
 func Frida_device_find_process_by_name_sync(obj uintptr,name string,ops uintptr,cancellable uintptr)(uintptr,error){
+	if name==""{
+		return 0,errors.New("name is emtry")
+	}
 	gerr:=MakeGError()
 	r,_,_:=frida_device_find_process_by_name_sync.Call(obj, GoStrToCStr(name),ops,cancellable,gerr.Input())
 	return r,gerr.ToError()
