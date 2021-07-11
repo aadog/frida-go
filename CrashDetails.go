@@ -2,7 +2,7 @@ package frida_go
 
 import (
 	"fmt"
-	"frida-go/cfrida"
+	"github.com/a97077088/frida-go/cfrida"
 	"unsafe"
 )
 
