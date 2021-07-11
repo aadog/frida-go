@@ -35,7 +35,7 @@ func (s *ScriptSignalConnect) free() {
 }
 func (s *ScriptSignalConnect) OnDestroyed(on ScriptOnDestroyedEventFunc) int64 {
 	userdata:=int64(reflect.ValueOf(on).Pointer())
-	script_onMessageCallbackTable.Store(userdata,on)
+	script_onDestroyedCallbackTable.Store(userdata,on)
 	sigid := cfrida.G_signal_connect_data(s.rawScriptPtr, "destroyed", script_onDestroyedPtr, uintptr(userdata), 0, G_CONNECT_AFTER)
 	s.onDestroyedSigs.Store(sigid,userdata)
 	return sigid
