@@ -31,85 +31,80 @@ func (s *Session) IsDetached() bool {
 }
 
 func (s *Session) Detach() error {
-	var err GError
-	cfrida.Frida_session_detach_sync(s.instance,0,err.ErrInput())
-	if err.IsError(){
-		return err.ToError()
+	err:=cfrida.Frida_session_detach_sync(s.instance,0,)
+	if err!=nil{
+	    return err
 	}
 	return nil
 }
 
-func (s *Session) CreateScript(source string,ops *ScriptOptions)(*Script,error){
-	if ops!=nil{
-		if ops.Name!=""{
-			cfrida.Frida_script_options_set_name(ops.instance,ops.Name)
-		}
-		cfrida.Frida_script_options_set_runtime(ops.instance, int(ops.Runtime))
+func (s *Session) CreateScript(source string,ops ScriptOptions)(*Script,error){
+	rawops:=cfrida.Frida_script_options_new()
+	defer cfrida.G_object_unref(rawops)
+	if ops.Name!=""{
+		cfrida.Frida_script_options_set_name(rawops,ops.Name)
 	}
-	var err GError
-	sc:=cfrida.Frida_session_create_script_sync(s.instance,source,ops.instance,0,err.ErrInput())
-	if err.IsError(){
-		return nil,err.ToError()
-	}
-	return ScriptFromInst(sc),nil
-}
-func (s *Session) CreateScriptFormBytes(source []byte,ops *ScriptOptions)(*Script,error){
-	if ops!=nil{
-		if ops.Name!=""{
-			cfrida.Frida_script_options_set_name(ops.instance,ops.Name)
-		}
-		cfrida.Frida_script_options_set_runtime(ops.instance, int(ops.Runtime))
-	}
-	var err GError
-	sc:=cfrida.Frida_session_create_script_from_bytes_sync(s.instance,source,ops.instance,0,err.ErrInput())
-	if err.IsError(){
-		return nil,err.ToError()
+	cfrida.Frida_script_options_set_runtime(rawops, int(ops.Runtime))
+
+	sc,err:=cfrida.Frida_session_create_script_sync(s.instance,source,rawops,0,)
+	if err!=nil{
+	    return nil,err
 	}
 	return ScriptFromInst(sc),nil
 }
-func (s *Session) CompileScript(source string,ops *ScriptOptions)([]byte,error){
-	if ops!=nil{
-		if ops.Name!=""{
-			cfrida.Frida_script_options_set_name(ops.instance,ops.Name)
-		}
-		cfrida.Frida_script_options_set_runtime(ops.instance, int(ops.Runtime))
+func (s *Session) CreateScriptFormBytes(source []byte,ops ScriptOptions)(*Script,error){
+	rawops:=cfrida.Frida_script_options_new()
+	defer cfrida.G_object_unref(rawops)
+	if ops.Name!=""{
+		cfrida.Frida_script_options_set_name(rawops,ops.Name)
 	}
-	var err GError
-	bt:=cfrida.Frida_session_compile_script_sync(s.instance,source,ops.instance,0,err.ErrInput())
-	if err.IsError(){
-		return nil,err.ToError()
+	cfrida.Frida_script_options_set_runtime(rawops, int(ops.Runtime))
+
+	sc,err:=cfrida.Frida_session_create_script_from_bytes_sync(s.instance,source,rawops,0)
+	if err!=nil{
+	    return nil,err
+	}
+	return ScriptFromInst(sc),nil
+}
+func (s *Session) CompileScript(source string,ops ScriptOptions)([]byte,error){
+	rawops:=cfrida.Frida_script_options_new()
+	defer cfrida.G_object_unref(rawops)
+	if ops.Name!=""{
+		cfrida.Frida_script_options_set_name(rawops,ops.Name)
+	}
+	cfrida.Frida_script_options_set_runtime(rawops, int(ops.Runtime))
+	bt,err:=cfrida.Frida_session_compile_script_sync(s.instance,source,rawops,0)
+	if err!=nil{
+	    return nil,err
 	}
 	return bt,nil
 }
 
 
 func (s *Session) EnableDebugger(port int)error{
-	var err GError
-	cfrida.Frida_session_enable_debugger_sync(s.instance,port,0,err.ErrInput())
-	if err.IsError(){
-		return err.ToError()
+	err:=cfrida.Frida_session_enable_debugger_sync(s.instance,port,0)
+	if err!=nil{
+	    return err
 	}
 	return nil
 }
 func (s *Session) DisableDebugger()error{
-	var err GError
-	cfrida.Frida_session_disable_debugger_sync(s.instance,0,err.ErrInput())
-	if err.IsError(){
-		return err.ToError()
+	err:=cfrida.Frida_session_disable_debugger_sync(s.instance,0)
+	if err!=nil{
+	    return err
 	}
 	return nil
 }
-func (s *Session) SetupPeerConnection(ops *FridaPeerOptions)error{
-	if ops!=nil{
-		cfrida.Frida_peer_options_set_stun_server(ops.instance, ops.StunServer)
-		for _, relay := range ops.Relays {
-			cfrida.Frida_peer_options_add_relay(ops.instance, relay.instance)
-		}
+func (s *Session) SetupPeerConnection(ops PeerOptions)error{
+	rawops:=cfrida.Frida_peer_options_new()
+	defer cfrida.G_object_unref(rawops)
+	cfrida.Frida_peer_options_set_stun_server(rawops, ops.StunServer)
+	for _, relay := range ops.Relays {
+		cfrida.Frida_peer_options_add_relay(rawops, relay.instance)
 	}
-	var err GError
-	cfrida.Frida_session_setup_peer_connection_sync(s.instance,ops.instance,0,err.ErrInput())
-	if err.IsError(){
-		return err.ToError()
+	err:=cfrida.Frida_session_setup_peer_connection_sync(s.instance,rawops,0)
+	if err!=nil{
+	    return err
 	}
 	return nil
 }

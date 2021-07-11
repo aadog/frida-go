@@ -5,9 +5,13 @@ func Frida_file_monitor_new(path string)uintptr{
 	return r
 }
 
-func Frida_file_monitor_enable_sync(obj uintptr,cancellable uintptr,error uintptr){
-	frida_file_monitor_enable_sync.Call(obj,cancellable,error)
+func Frida_file_monitor_enable_sync(obj uintptr,cancellable uintptr)error{
+	gerr:=MakeGError()
+	frida_file_monitor_enable_sync.Call(obj,cancellable,gerr.Input())
+	return gerr.ToError()
 }
-func Frida_file_monitor_disable_sync(obj uintptr,cancellable uintptr,error uintptr){
-	frida_file_monitor_disable_sync.Call(obj,cancellable,error)
+func Frida_file_monitor_disable_sync(obj uintptr,cancellable uintptr)error{
+	gerr:=MakeGError()
+	frida_file_monitor_disable_sync.Call(obj,cancellable,gerr.Input())
+	return gerr.ToError()
 }

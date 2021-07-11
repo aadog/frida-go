@@ -3,14 +3,12 @@ package cfrida
 
 func Frida_application_get_identifier(obj uintptr) string {
 	r, _, _ := frida_application_get_identifier.Call(obj)
-	defer G_free(r)
-	return CStrToStr(r)
+	return CStrToGoStr(r)
 }
 
 func Frida_application_get_name(obj uintptr) string {
 	r, _, _ := frida_application_get_name.Call(obj)
-	defer G_free(r)
-	return CStrToStr(r)
+	return CStrToGoStr(r)
 }
 
 func Frida_application_get_pid(obj uintptr) int {
@@ -18,7 +16,8 @@ func Frida_application_get_pid(obj uintptr) int {
 	return int(r)
 }
 
-func Frida_application_get_parameters(obj uintptr) int {
+func Frida_application_get_parameters(obj uintptr) map[string]interface{} {
 	r, _, _ := frida_application_get_parameters.Call(obj)
-	return int(r)
+	defer G_hash_table_unref(r)
+	return G_hash_table_to_Map(r)
 }

@@ -67,26 +67,23 @@ func (s *Script) IsDestroyed() bool {
 }
 
 func (s *Script) Load() error {
-	var err GError
-	cfrida.Frida_script_load_sync(s.instance,0,err.ErrInput())
-	if err.IsError(){
-		return err.ToError()
+	err:=cfrida.Frida_script_load_sync(s.instance,0,)
+	if err!=nil{
+	    return err
 	}
 	return nil
 }
 func (s *Script) UnLoad() error {
-	var err GError
-	cfrida.Frida_script_unload_sync(s.instance,0,err.ErrInput())
-	if err.IsError(){
-		return err.ToError()
+	err:=cfrida.Frida_script_unload_sync(s.instance,0)
+	if err!=nil{
+	    return err
 	}
 	return nil
 }
 func (s *Script) Eternalize() error {
-	var err GError
-	cfrida.Frida_script_eternalize_sync(s.instance,0,err.ErrInput())
-	if err.IsError(){
-		return err.ToError()
+	err:=cfrida.Frida_script_eternalize_sync(s.instance,0,)
+	if err!=nil{
+	    return err
 	}
 	return nil
 }

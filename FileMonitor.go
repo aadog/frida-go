@@ -14,18 +14,16 @@ func (f *FileMonitor) Free() {
 }
 
 func (f *FileMonitor) Enable()error{
-	var err GError
-	cfrida.Frida_file_monitor_enable_sync(f.instance,0,err.ErrInput())
-	if err.IsError(){
-	    return err.ToError()
+	err:=cfrida.Frida_file_monitor_enable_sync(f.instance,0,)
+	if err!=nil{
+	    return err
 	}
 	return nil
 }
 func (f *FileMonitor) Disable()error{
-	var err GError
-	cfrida.Frida_file_monitor_disable_sync(f.instance,0,err.ErrInput())
-	if err.IsError(){
-		return err.ToError()
+	err:=cfrida.Frida_file_monitor_disable_sync(f.instance,0,)
+	if err!=nil{
+	    return err
 	}
 	return nil
 }

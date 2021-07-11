@@ -1,2 +1,0 @@
-package frida_go
-

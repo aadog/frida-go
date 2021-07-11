@@ -7,7 +7,7 @@ const sizeOfUintPtr = unsafe.Sizeof(uintptr(0))
 func uintptrToBytes(u uintptr) []byte {
 	return (*[sizeOfUintPtr]byte)(unsafe.Pointer(u))[:]
 }
-func CStrToStr(ustr uintptr)string{
+func CStrToGoStr(ustr uintptr)string{
 	return copyStr(ustr,G_strlen(ustr))
 }
 
@@ -60,20 +60,5 @@ func StringToUTF8Ptr(s string) *uint8 {
 	utf8StrArr := make([]uint8, len(temp)+1) // +1是因为Lazarus中PChar为0结尾
 	copy(utf8StrArr, temp)
 	return &utf8StrArr[0]
-}
-
-// byte到UTF8指针
-func ByteToUTF8Ptr(b []byte) *uint8 {
-	temp := []byte(b)
-	utf8StrArr := make([]uint8, len(temp)+1) // +1是因为Lazarus中PChar为0结尾
-	copy(utf8StrArr, temp)
-	return &utf8StrArr[0]
-}
-
-func GetBuff(size int32) interface{} {
-	return make([]uint8, size+1)
-}
-func getTextBuf(strBuff interface{}, Buffer *string, slen int) {
-	*Buffer = string((strBuff.([]uint8))[:slen])
 }
 

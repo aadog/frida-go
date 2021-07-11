@@ -17,54 +17,49 @@ func (i *IOStream) IsClosed() bool {
 }
 
 func (i *IOStream) Close() (bool,error) {
-	var err GError
-	cfrida.G_input_stream_close(i.Input,0,err.ErrInput())
-	if err.IsError(){
-		return false,err.ToError()
+	err:=cfrida.G_input_stream_close(i.Input,0)
+	if err!=nil{
+	    return false,err
 	}
-	cfrida.G_output_stream_close(i.OutPut,0,err.ErrInput())
-	if err.IsError(){
-		return false,err.ToError()
+	err=cfrida.G_output_stream_close(i.OutPut,0)
+	if err!=nil{
+	    return false,err
 	}
-	b:=cfrida.G_io_stream_close(i.instance,0,err.ErrInput())
-	if err.IsError(){
-		return false,err.ToError()
+	b,err:=cfrida.G_io_stream_close(i.instance,0)
+	if err!=nil{
+	    return false,err
 	}
 	return b,nil
 }
 func (i *IOStream) Read(count int) ([]byte,error) {
-	var err GError
-	bt:=cfrida.G_input_stream_read_bytes(i.instance,count,0,err.ErrInput())
-	if err.IsError(){
-		return nil,err.ToError()
+	bt,err:=cfrida.G_input_stream_read_bytes(i.instance,count,0)
+	if err!=nil{
+	    return nil,err
 	}
 	return bt,nil
 }
 func (i *IOStream) ReadAll(count int) ([]byte,int,error) {
 	buf:=make([]byte,count)
 	bytes_read:=0
-	var err GError
-	cfrida.G_input_stream_read_all(i.instance,buf,count,&bytes_read,0,err.ErrInput())
-	if err.IsError(){
-		return nil,0,err.ToError()
+	_,err:=cfrida.G_input_stream_read_all(i.instance,buf,count,&bytes_read,0)
+	if err!=nil{
+	    return nil,0,err
 	}
 	return buf,bytes_read,nil
 }
 
 func (i *IOStream) Write(data []byte) (int,error) {
-	var err GError
-	n:=cfrida.G_output_stream_write_bytes(i.OutPut,data,0,err.ErrInput())
-	if err.IsError(){
-		return 0,err.ToError()
+	n,err:=cfrida.G_output_stream_write_bytes(i.OutPut,data,0)
+	if err!=nil{
+	    return 0,err
 	}
 	return n,nil
 }
 func (i *IOStream) WriteAll(data []byte) (int,error) {
 	outsize:=0
-	var err GError
-	cfrida.G_output_stream_write_all(i.OutPut,data,&outsize,0,err.ErrInput())
-	if err.IsError(){
-		return 0,err.ToError()
+	_,err:=cfrida.G_output_stream_write_all(i.OutPut,data,&outsize,0,)
+	if err!=nil{
+	    return 0,err
 	}
 	return outsize,nil
 }

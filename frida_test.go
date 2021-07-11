@@ -9,6 +9,20 @@ import (
 	"time"
 )
 
+func TestGC(t *testing.T) {
+	go func() {
+		dm := DeviceManager_Create()
+		d, err := dm.FindDeviceByType(DeviceType_USB, 1000)
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println(d.Name())
+	}()
+	for{
+		runtime.GC()
+		time.Sleep(time.Second)
+	}
+}
 func TestDevice_InjectLibraryFileFile(t *testing.T) {
 	dm := DeviceManager_Create()
 	d, err := dm.FindDeviceByType(DeviceType_USB, 1000)
@@ -30,16 +44,15 @@ func v(t *testing.T) {
 	}
 	fmt.Println(d)
 
-	p, err := d.GetProcessByName("映客直播", NewProcessMatchOptions())
+	p, err := d.GetProcessByName("映客直播", ProcessMatchOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	system_session, err := d.Attach(p.Pid(), NewSessionOptions())
+	system_session, err := d.Attach(p.Pid(), SessionOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	ops := NewScriptOptions()
-	ops.Name = "test"
+
 	sc, err := system_session.CreateScript(`
 	console.log("ok111111111")
 	rpc.exports={
@@ -47,7 +60,7 @@ func v(t *testing.T) {
 			return a+b+c
 		}
 	}
-	`, NewScriptOptions())
+	`, ScriptOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,25 +89,23 @@ func TestScript_Post(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	p, err := d.GetProcessByName("映客直播", NewProcessMatchOptions())
+	p, err := d.GetProcessByName("映客直播", ProcessMatchOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	system_session, err := d.Attach(p.Pid(), NewSessionOptions())
+	system_session, err := d.Attach(p.Pid(), SessionOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
 	//defer system_session.Detach()
-	ops := NewScriptOptions()
-	ops.Name = "test"
 	sc, err := system_session.CreateScript(`
 	console.log("ok111111111")
 	rpc.exports={
 		listThreads: function () {
-    		return Process.enumerateThreadsSync();
+    		return ProcessDetails.enumerateThreadsSync();
   		}
 	}
-	`, NewScriptOptions())
+	`, ScriptOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,18 +135,18 @@ func TestSession_bytecode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	system_session, err := d.Attach(0, NewSessionOptions())
+	system_session, err := d.Attach(0, SessionOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer system_session.Detach()
-	ops := NewScriptOptions()
+
 	bt, err := system_session.CompileScript(`
-	console.log('hello')`, ops)
+	console.log('hello')`, ScriptOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	sc, err := system_session.CreateScriptFormBytes(bt, NewScriptOptions())
+	sc, err := system_session.CreateScriptFormBytes(bt, ScriptOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -189,12 +200,12 @@ func TestDevice_OpenChannel(t *testing.T) {
 func TestAttach(t *testing.T) {
 	dm := DeviceManager_Create()
 
-	d, err := dm.AddRemoteDevice("127.0.0.1", NewRemoteDeviceOptions())
+	d, err := dm.AddRemoteDevice("127.0.0.1", RemoteDeviceOptions{})
 	if err != nil {
 		panic(err)
 	}
 
-	p, err := d.GetProcessByName("notepad.exe", NewProcessMatchOptions())
+	p, err := d.GetProcessByName("notepad.exe", ProcessMatchOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -235,7 +246,7 @@ func TestDevice_Spawn(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	ops:=NewSpawnOptions()
+	ops:=SpawnOptions{}
 	ops.Argv=[]string{"-c","cat /etc/hosts"}
 	ops.Stdio=FRIDA_STDIO_PIPE
 	p,err:=d.Spawn("/bin/sh",ops)
@@ -252,7 +263,7 @@ func TestDevice_FrontmostApplication(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	a, err := d.FrontmostApplication(NewFrontmostQueryOptions())
+	a, err := d.FrontmostApplication(FrontmostQueryOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -265,8 +276,9 @@ func TestApplication(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	ops := NewApplicationQueryOptions()
-	apps, err := d.EnumerateApplications(ops)
+	apps, err := d.EnumerateApplications(ApplicationQueryOptions{
+		Scope:       0,
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -308,7 +320,7 @@ func TestManager(t *testing.T) {
 	dm.OnAdded(func(device *Device) {
 		fmt.Println("添加新设备:",device.Name())
 	})
-	dm.AddRemoteDevice("127.0.0.1",NewRemoteDeviceOptions())
+	dm.AddRemoteDevice("127.0.0.1",RemoteDeviceOptions{})
 	fmt.Println("wait devices change...")
 	for {
 		time.Sleep(time.Second)
@@ -319,10 +331,74 @@ func TestManager(t *testing.T) {
 func TestDevice_EnumerateProcesses(t *testing.T) {
 	mgr := DeviceManager_Create()
 	d, _ := mgr.GetDeviceByType(DeviceType_USB, 1000)
-	ops := NewProcessQueryOptions()
-	ops.SelectPids = []int{1, 9125}
+	ops := ProcessQueryOptions{}
+	ops.SelectPids = []uint{1, 9125}
 	pss, _ := d.EnumerateProcesses(ops)
 	for _, process := range pss {
 		fmt.Println(process.Description())
+	}
+}
+
+func TestApplication_Params(t *testing.T) {
+	mgr := DeviceManager_Create()
+	d, _ := mgr.GetDeviceByType(DeviceType_USB, 1000)
+	dict,err:=d.QuerySystemParameters()
+	if err!=nil{
+	    t.Fatal(err)
+	}
+	fmt.Println(dict)
+}
+
+func TestNewDeviceSignalConnect(t *testing.T) {
+	go func() {
+		mgr := DeviceManager_Create()
+		d, _ := mgr.GetDeviceByType(DeviceType_USB, 1000)
+		d.OnSpawnAdded(func(spawn *SpawnDetails) {
+			fmt.Println(spawn)
+		})
+		d.OnChildAdded(func(child *ChildDetails) {
+			fmt.Println("aa")
+		})
+		d.OnOutput(func(data []byte, fd int, pid int) {
+			fmt.Println("aa")
+		})
+
+	}()
+	for{
+		runtime.GC()
+		time.Sleep(time.Second*1)
+	}
+}
+
+func TestProcessDetails_Parameters(t *testing.T) {
+	mgr := DeviceManager_Create()
+	d, _ := mgr.GetDeviceByType(DeviceType_USB, 1000)
+	ps,err:=d.EnumerateProcesses(ProcessQueryOptions{})
+	if err!=nil{
+	    t.Fatal(err)
+	}
+	for _, p := range ps {
+		fmt.Println(p.Description())
+	}
+	p,err:=d.FindProcessById(10675,ProcessMatchOptions{})
+	if err!=nil{
+	    t.Fatal(err)
+	}
+	fmt.Println(p.Description())
+}
+func TestBus(t *testing.T) {
+	mgr := DeviceManager_Create()
+	d, _ := mgr.GetDeviceByType(DeviceType_USB, 1000)
+	bus:=d.Bus()
+	bus.OnMessage(func(sjson jsoniter.Any, data []byte) {
+		fmt.Println(sjson.ToString())
+	})
+	isatt,err:=bus.Attach()
+	if err!=nil{
+	    t.Fatal(err)
+	}
+	fmt.Println(isatt)
+	for{
+		time.Sleep(time.Second*1)
 	}
 }

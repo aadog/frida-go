@@ -14,33 +14,44 @@ func Frida_session_is_detached(obj uintptr) bool {
 	return r!=0
 }
 
-func Frida_session_detach_sync(obj uintptr,cancellable uintptr,error uintptr) {
-	frida_session_detach_sync.Call(obj,cancellable,error)
+func Frida_session_detach_sync(obj uintptr,cancellable uintptr)error{
+	gerr:=MakeGError()
+	frida_session_detach_sync.Call(obj,cancellable,gerr.Input())
+	return gerr.ToError()
 }
 
-func Frida_session_create_script_sync(obj uintptr,source string,ops uintptr,cancellable uintptr,error uintptr)uintptr{
-	r,_,_:=frida_session_create_script_sync.Call(obj,GoStrToCStr(source),ops,cancellable,error)
-	return r
+func Frida_session_create_script_sync(obj uintptr,source string,ops uintptr,cancellable uintptr)(uintptr,error){
+	gerr:=MakeGError()
+	r,_,_:=frida_session_create_script_sync.Call(obj,GoStrToCStr(source),ops,cancellable,gerr.Input())
+	return r,gerr.ToError()
 }
-func Frida_session_create_script_from_bytes_sync(obj uintptr,source []byte,ops uintptr,cancellable uintptr,error uintptr)uintptr{
+func Frida_session_create_script_from_bytes_sync(obj uintptr,source []byte,ops uintptr,cancellable uintptr)(uintptr,error){
+	gerr:=MakeGError()
 	bt:=G_bytes_new(source)
 	defer G_bytes_unref(bt)
-	r,_,_:=frida_session_create_script_from_bytes_sync.Call(obj,bt,ops,cancellable,error)
-	return r
+	r,_,_:=frida_session_create_script_from_bytes_sync.Call(obj,bt,ops,cancellable,gerr.Input())
+	return r,gerr.ToError()
 }
-func Frida_session_compile_script_sync(obj uintptr,source string,ops uintptr,cancellable uintptr,error uintptr)[]byte{
-	r,_,_:=frida_session_compile_script_sync.Call(obj,GoStrToCStr(source),ops,cancellable,error)
-	return G_bytes_to_bytes_and_unref(r)
+func Frida_session_compile_script_sync(obj uintptr,source string,ops uintptr,cancellable uintptr)([]byte,error){
+	gerr:=MakeGError()
+	r,_,_:=frida_session_compile_script_sync.Call(obj,GoStrToCStr(source),ops,cancellable,gerr.Input())
+	return G_bytes_to_bytes_and_unref(r),gerr.ToError()
 }
 
-func Frida_session_enable_debugger_sync(obj uintptr,port int,cancellable uintptr,error uintptr){
-	frida_session_enable_debugger_sync.Call(obj, uintptr(port),cancellable,error)
+func Frida_session_enable_debugger_sync(obj uintptr,port int,cancellable uintptr)error{
+	gerr:=MakeGError()
+	frida_session_enable_debugger_sync.Call(obj, uintptr(port),cancellable,gerr.Input())
+	return gerr.ToError()
 }
-func Frida_session_disable_debugger_sync(obj uintptr,cancellable uintptr,error uintptr){
-	frida_session_disable_debugger_sync.Call(obj, cancellable,error)
+func Frida_session_disable_debugger_sync(obj uintptr,cancellable uintptr)error{
+	gerr:=MakeGError()
+	frida_session_disable_debugger_sync.Call(obj, cancellable,gerr.Input())
+	return gerr.ToError()
 }
-func Frida_session_setup_peer_connection_sync(obj uintptr,ops uintptr,cancellable uintptr,error uintptr){
-	frida_session_setup_peer_connection_sync.Call(obj,ops, cancellable,error)
+func Frida_session_setup_peer_connection_sync(obj uintptr,ops uintptr,cancellable uintptr)error{
+	gerr:=MakeGError()
+	frida_session_setup_peer_connection_sync.Call(obj,ops, cancellable,gerr.Input())
+	return gerr.ToError()
 }
 
 func Frida_relay_new(address,username,password string,kind int)uintptr{
@@ -49,6 +60,5 @@ func Frida_relay_new(address,username,password string,kind int)uintptr{
 }
 func Frida_relay_get_address(obj uintptr)string{
 	r,_,_:=frida_relay_get_address.Call(obj)
-	defer G_free(r)
-	return CStrToStr(r)
+	return CStrToGoStr(r)
 }
