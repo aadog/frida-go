@@ -1,7 +1,6 @@
 package frida_go
 
 import (
-	"fmt"
 	"github.com/a97077088/frida-go/cfrida"
 	jsoniter "github.com/json-iterator/go"
 	"reflect"
@@ -19,7 +18,7 @@ type ScriptSignalConnect struct {
 
 func (s *ScriptSignalConnect) free() {
 	if s.rawScriptPtr!=0{
-		fmt.Println("ScriptSignalConnect gc")
+		//fmt.Println("ScriptSignalConnect gc")
 		s.onMessageSigs.Range(func(key, value interface{}) bool {
 			cfrida.G_signal_handler_disconnect(s.rawScriptPtr, key.(int64))
 			script_onMessageCallbackTable.Delete(key.(int64))

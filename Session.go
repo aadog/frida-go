@@ -39,6 +39,12 @@ func (s *Session) Detach() error {
 }
 
 func (s *Session) CreateScript(source string,ops ScriptOptions)(*Script,error){
+	if source==""{
+		//fix null emtry
+		source=`
+			console.log("")
+		`
+	}
 	rawops:=cfrida.Frida_script_options_new()
 	defer cfrida.G_object_unref(rawops)
 	if ops.Name!=""{

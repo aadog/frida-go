@@ -1,7 +1,6 @@
 package frida_go
 
 import (
-	"fmt"
 	"github.com/a97077088/frida-go/cfrida"
 	"reflect"
 	"sync"
@@ -77,7 +76,7 @@ func (s *DeviceManagerSignalConnect) OnRemoved(on DeviceManagerRemovedEventFunc)
 
 func (s *DeviceManagerSignalConnect) free() {
 	if s.rawDeviceManagerPtr!=0{
-		fmt.Println("DeviceManagerSignalConnect gc")
+		//fmt.Println("DeviceManagerSignalConnect gc")
 		s.onAddedSigs.Range(func(key, value interface{}) bool {
 			cfrida.G_signal_handler_disconnect(s.rawDeviceManagerPtr, key.(int64))
 			deviceManager_onAddedCallbackTable.Delete(key.(int64))

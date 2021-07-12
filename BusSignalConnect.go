@@ -1,7 +1,6 @@
 package frida_go
 
 import (
-	"fmt"
 	"github.com/a97077088/frida-go/cfrida"
 	jsoniter "github.com/json-iterator/go"
 	"reflect"
@@ -19,7 +18,7 @@ type BusSignalConnect struct {
 
 func (s *BusSignalConnect) free() {
 	if s.rawBusPtr!=0{
-		fmt.Println("BusSignalConnect gc")
+		//fmt.Println("BusSignalConnect gc")
 		s.onMessageSigs.Range(func(key, value interface{}) bool {
 			cfrida.G_signal_handler_disconnect(s.rawBusPtr, key.(int64))
 			bus_onMessageCallbackTable.Delete(key.(int64))

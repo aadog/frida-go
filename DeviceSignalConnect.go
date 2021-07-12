@@ -1,7 +1,6 @@
 package frida_go
 
 import (
-	"fmt"
 	"github.com/a97077088/frida-go/cfrida"
 	"reflect"
 	"sync"
@@ -169,7 +168,7 @@ func (s *DeviceSignalConnect) OnLost(on DeviceOnLostEventFunc) int64 {
 
 func (s *DeviceSignalConnect) free() {
 	if s.rawDevicePtr!=0{
-		fmt.Println("DeviceSignalConnect gc")
+		//fmt.Println("DeviceSignalConnect gc")
 		s.onSpawnAddedSigs.Range(func(key, value interface{}) bool {
 			cfrida.G_signal_handler_disconnect(s.rawDevicePtr, key.(int64))
 			device_onSpawnAddedbackTable.Delete(key.(int64))

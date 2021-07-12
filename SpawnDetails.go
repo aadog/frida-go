@@ -28,7 +28,7 @@ func (p *SpawnDetails) Identifier() string {
 
 
 func (d *SpawnDetails) Free() {
-	fmt.Println("spawn gc")
+	//fmt.Println("spawn gc")
 	cfrida.G_object_unref(d.instance)
 }
 

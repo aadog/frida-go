@@ -132,7 +132,7 @@ func (s *Script) Description() string {
 func (s *Script) Free() {
 	if s.instance!=0{
 		s.free()
-		fmt.Println("script gc")
+		//fmt.Println("script gc")
 		cfrida.G_object_unref(s.instance)
 		s.instance,s.ptr=0,nil
 	}

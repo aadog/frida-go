@@ -1,7 +1,6 @@
 package frida_go
 
 import (
-	"fmt"
 	"github.com/a97077088/frida-go/cfrida"
 	"unsafe"
 )
@@ -24,7 +23,7 @@ func (d *DeviceManager) Close()error{
 }
 func (d *DeviceManager) Free() {
 	d.free()
-	fmt.Println("DeviceManager gc")
+	//fmt.Println("DeviceManager gc")
 	cfrida.G_object_unref(d.instance)
 }
 func (d *DeviceManager) EnumerateDevices()([]*Device,error){

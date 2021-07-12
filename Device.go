@@ -309,7 +309,7 @@ func (d *Device) FindProcessByName(name string,ops ProcessMatchOptions)(*Process
 
 func (d *Device) Free() {
 	d.free()
-	fmt.Println("device gc")
+	//fmt.Println("device gc")
 	cfrida.G_object_unref(d.instance)
 }
 

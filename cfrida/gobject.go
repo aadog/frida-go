@@ -2,7 +2,6 @@ package cfrida
 
 import (
 	"errors"
-	"fmt"
 	"runtime"
 	"unsafe"
 )
@@ -329,7 +328,7 @@ func (g *GError) ToError()error{
 	return errors.New(G_error_get_message(g.instance))
 }
 func (g *GError) Free(){
-	fmt.Println("gerror gc")
+	//fmt.Println("gerror gc")
 	if g.instance!=0{
 		G_error_free(g.instance)
 		g.instance=0
