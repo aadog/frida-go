@@ -1,8 +1,8 @@
 package cfrida
 
 import (
+	"github.com/a97077088/dylib"
 	"runtime"
-	"syscall"
 )
 
 var(
@@ -10,7 +10,7 @@ var(
 )
 
 // 加载库
-func loadUILib() *syscall.LazyDLL {
+func loadUILib() *dylib.LazyDLL {
 	libName := getDLLName()
 	// 如果支持运行时释放，则使用此种方法
 	if support, newDLLPath := checkAndReleaseDLL(); support {
@@ -18,7 +18,7 @@ func loadUILib() *syscall.LazyDLL {
 	} else {
 		libName=libName
 	}
-	lib := syscall.NewLazyDLL(libName)
+	lib := dylib.NewLazyDLL(libName)
 	err := lib.Load()
 	if err != nil {
 		panic(err)
@@ -28,7 +28,7 @@ func loadUILib() *syscall.LazyDLL {
 }
 
 // 获取dll库实例，用于在外扩展第三方组件的。移动来自dfuncs.go
-func GetLibFrida() *syscall.LazyDLL {
+func GetLibFrida() *dylib.LazyDLL {
 	return libfrida
 }
 
