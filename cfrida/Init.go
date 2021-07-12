@@ -1,6 +1,5 @@
 package cfrida
 
-
 func Frida_init() {
 	frida_init.Call()
 }
