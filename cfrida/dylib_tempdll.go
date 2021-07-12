@@ -13,7 +13,6 @@ import (
 	"os"
 )
 
-// $GOPATH/github.com/ying32/liblclbinres
 
 func BytesToFile(destFileName string, input []byte) error {
 	fi, err := os.Create(destFileName)
