@@ -25,3 +25,7 @@ go build -tags tempdll
 
 
 #### The code style is based on [swift-frida](https://github.com/frida/frida-swift)
+
+#### dylib from the project [ying32/dylib](https://github.com/ying32/dylib)
+
+#### tempdll from the project [ying32/govcl](https://github.com/ying32/govcl)
