@@ -1,7 +1,6 @@
 package cfrida
 
 import (
-	"github.com/ying32/govcl/pkgs/libname"
 	"runtime"
 	"syscall"
 )
@@ -17,9 +16,7 @@ func loadUILib() *syscall.LazyDLL {
 	if support, newDLLPath := checkAndReleaseDLL(); support {
 		libName = newDLLPath
 	} else {
-		if libname.LibName != "" {
-			libName = libname.LibName
-		}
+		libName=libName
 	}
 	lib := syscall.NewLazyDLL(libName)
 	err := lib.Load()
