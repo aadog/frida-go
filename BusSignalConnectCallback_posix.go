@@ -1,5 +1,6 @@
 // +build !windows
-// +build posix
+// +build linux
+// +build darwin
 
 package frida_go
 
