@@ -6,6 +6,9 @@
 
 ### Supports system(If necessary, he can support all platforms)
 - windows x64
+- linux
+- macos
+- posix
 
 ### install
 
