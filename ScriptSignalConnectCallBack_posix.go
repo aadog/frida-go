@@ -1,3 +1,4 @@
+// +build !windows
 package frida_go
 /*
 extern void* script_onDestroyed(void*, void*);
