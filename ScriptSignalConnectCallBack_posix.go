@@ -1,6 +1,5 @@
 // +build !windows
-// +build linux
-// +build darwin
+// +build cgo
 
 package frida_go
 /*
