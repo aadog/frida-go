@@ -4,7 +4,6 @@ import (
 	"github.com/a97077088/frida-go/cfrida"
 	"reflect"
 	"sync"
-	"syscall"
 )
 
 type DeviceManagerAddedEventFunc func(device *Device)
@@ -21,33 +20,7 @@ var deviceManager_onAddedCallbackTable=sync.Map{}
 var deviceManager_onChangedCallbackTable=sync.Map{}
 var deviceManager_onRemovedCallbackTable=sync.Map{}
 
-var deviceManager_onAddedPtr = syscall.NewCallbackCDecl(func(_, rawDevice uintptr,userdata uintptr) uintptr {
-	v,ok:=deviceManager_onAddedCallbackTable.Load(int64(userdata))
-	if !ok{
-		return 0
-	}
-	h:=v.(DeviceManagerAddedEventFunc)
-	h(DeviceFromInst(cfrida.G_object_ref(rawDevice)))
-	return 0
-})
-var deviceManager_onChangedPtr = syscall.NewCallbackCDecl(func(_,userdata uintptr) uintptr {
-	v,ok:=deviceManager_onChangedCallbackTable.Load(int64(userdata))
-	if !ok{
-		return 0
-	}
-	h:=v.(DeviceManagerChangedEventFunc)
-	h()
-	return 0
-})
-var deviceManager_onRemovedPtr = syscall.NewCallbackCDecl(func(_, rawDevice uintptr,userdata uintptr) uintptr {
-	v,ok:=deviceManager_onRemovedCallbackTable.Load(int64(userdata))
-	if !ok{
-		return 0
-	}
-	h:=v.(DeviceManagerRemovedEventFunc)
-	h(DeviceFromInst(cfrida.G_object_ref(rawDevice)))
-	return 0
-})
+
 
 
 func (s *DeviceManagerSignalConnect) OnAdded(on DeviceManagerAddedEventFunc) int64 {

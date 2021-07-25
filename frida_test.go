@@ -2,6 +2,7 @@ package frida_go
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	"runtime"
@@ -15,6 +16,9 @@ func TestGC(t *testing.T) {
 		d, err := dm.FindDeviceByType(DeviceType_USB, 1000)
 		if err != nil {
 			t.Fatal(err)
+		}
+		if d==nil{
+			t.Fatal(errors.New("device not found"))
 		}
 		fmt.Println(d.Name())
 	}()

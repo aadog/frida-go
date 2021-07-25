@@ -5,7 +5,6 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"reflect"
 	"sync"
-	"syscall"
 )
 
 type BusOnMessageEventFunc func(sjson jsoniter.Any, data []byte)
@@ -46,29 +45,10 @@ func (s *BusSignalConnect) OnMessage(on BusOnMessageEventFunc) int64 {
 	s.onMessageSigs.Store(sigid,userdata)
 	return sigid
 }
-var bus_onDetachPtr = syscall.NewCallbackCDecl(func(sc uintptr, userdata uintptr) uintptr {
-	v,ok:=bus_onDetachCallbackTable.Load(int64(userdata))
-	if !ok{
-		return 0
-	}
-	h:=v.(BusOnDetachEventFunc)
-	h()
-	return 0
-})
+
 var bus_onDetachCallbackTable=sync.Map{}
 var bus_onMessageCallbackTable=sync.Map{}
-var bus_onMessagePtr = syscall.NewCallbackCDecl(func(sc uintptr, rawjson uintptr, rawdata uintptr, userdata uintptr) uintptr {
-	sjson := cfrida.CStrToGoStr(rawjson)
-	jjson := jsoniter.Get([]byte(sjson))
-	data := cfrida.G_bytes_to_bytes_and_unref(rawdata)
-	v,ok:=bus_onMessageCallbackTable.Load(int64(userdata))
-	if !ok{
-		return 0
-	}
-	h:=v.(BusOnMessageEventFunc)
-	h(jjson,data)
-	return 0
-})
+
 
 func NewBusSignalConnect(rawPtr uintptr) *BusSignalConnect {
 	sig := new(BusSignalConnect)

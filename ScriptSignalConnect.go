@@ -5,7 +5,6 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"reflect"
 	"sync"
-	"syscall"
 )
 
 type ScriptOnMessageEventFunc func(sjson jsoniter.Any, data []byte)
@@ -46,43 +45,9 @@ func (s *ScriptSignalConnect) OnMessage(on ScriptOnMessageEventFunc) int64 {
 	s.onMessageSigs.Store(sigid,userdata)
 	return sigid
 }
-var script_onDestroyedPtr = syscall.NewCallbackCDecl(func(sc uintptr, userdata uintptr) uintptr {
-	v,ok:=script_onDestroyedCallbackTable.Load(int64(userdata))
-	if !ok{
-		return 0
-	}
-	h:=v.(ScriptOnDestroyedEventFunc)
-	h()
-	return 0
-})
+
 var script_onDestroyedCallbackTable=sync.Map{}
 var script_onMessageCallbackTable=sync.Map{}
-var script_onMessagePtr = syscall.NewCallbackCDecl(func(sc uintptr, rawjson uintptr, rawdata uintptr, userdata uintptr) uintptr {
-	sjson := cfrida.CStrToGoStr(rawjson)
-	jjson := jsoniter.Get([]byte(sjson))
-	data := cfrida.G_bytes_to_bytes_and_unref(rawdata)
-	tp := jjson.Get("type").ToString()
-	if tp != "send" {
-		v,ok:=script_onMessageCallbackTable.Load(int64(userdata))
-		if !ok{
-			return 0
-		}
-		h:=v.(ScriptOnMessageEventFunc)
-		h(jjson,data)
-	} else {
-		if jjson.Get("payload").Size() < 4 {
-			v,ok:=script_onMessageCallbackTable.Load(int64(userdata))
-			if !ok{
-				return 0
-			}
-			h:=v.(ScriptOnMessageEventFunc)
-			h(jjson,data)
-		} else {
-			rpcCallbackFunc(jjson.Get("payload"))
-		}
-	}
-	return 0
-})
 
 func NewScriptSignalConnect(rawPtr uintptr) *ScriptSignalConnect {
 	sig := new(ScriptSignalConnect)
