@@ -1,4 +1,6 @@
 // +build windows
+// +build !posix
+
 package frida_go
 
 import (

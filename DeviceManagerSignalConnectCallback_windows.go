@@ -1,4 +1,6 @@
 // +build windows
+// +build !posix
+
 package frida_go
 
 import (
@@ -7,7 +9,7 @@ import (
 
 
 var deviceManager_onAddedPtr = syscall.NewCallbackCDecl(func(o uintptr, rawDevice uintptr,userdata uintptr) uintptr {
-	return deviceManager_onAddedCallBack(uintptr,rawDevice,userdata)
+	return deviceManager_onAddedCallBack(o,rawDevice,userdata)
 })
 var deviceManager_onChangedPtr = syscall.NewCallbackCDecl(func(o uintptr,userdata uintptr) uintptr {
 	return deviceManager_onChangedCallBack(o,userdata)
