@@ -27,7 +27,7 @@ func script_onMessageCallBack(sc uintptr, rawjson uintptr, rawdata uintptr, user
 		h:=v.(ScriptOnMessageEventFunc)
 		h(jjson,data)
 	} else {
-		if jjson.Get("payload").Size() < 4 {
+		if (jjson.Get("payload").ValueType()==jsoniter.ArrayValue)==false || jjson.Get("payload").Size() < 4 {
 			v,ok:=script_onMessageCallbackTable.Load(int64(userdata))
 			if !ok{
 				return 0
