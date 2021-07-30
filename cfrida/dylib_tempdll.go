@@ -1,4 +1,4 @@
-// +build windows linux
+// +build windows linux darwin
 // +build tempdll
 
 package cfrida
@@ -12,7 +12,6 @@ import (
 	"io/ioutil"
 	"os"
 )
-
 
 func BytesToFile(destFileName string, input []byte) error {
 	fi, err := os.Create(destFileName)
@@ -43,7 +42,7 @@ func fileExists(path string) bool {
 }
 
 func checkAndReleaseDLL() (bool, string) {
-	crc:=crc32.ChecksumIEEE(libfridabinres.FridaBinRes)
+	crc := crc32.ChecksumIEEE(libfridabinres.FridaBinRes)
 	tempDLLDir := fmt.Sprintf("%s/libfrida/%x", os.TempDir(), crc)
 	// create liblcl: $tempdir/libfrida/{crc32}/libfrida.{ext}
 	if !fileExists(tempDLLDir) {
